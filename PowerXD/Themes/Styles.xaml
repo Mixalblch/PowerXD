@@ -18,7 +18,7 @@
 
     <SolidColorBrush x:Key="BorderStrokeBrush" Color="#33FFFFFF" />
     <SolidColorBrush x:Key="CardHoverBrush" Color="#12FFFFFF" />
-    <SolidColorBrush x:Key="CardActiveBrush" Color="#247C6CFF" />
+    <SolidColorBrush x:Key="CardActiveBrush" Color="#14FFFFFF" />
     <SolidColorBrush x:Key="TrackOffBrush" Color="#FF3A3A4A" />
     <SolidColorBrush x:Key="DangerBrush" Color="#FFFF5A5F" />
 
@@ -38,7 +38,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="12" Background="{TemplateBinding Background}" Padding="13,10">
+                    <Border x:Name="Bg" CornerRadius="12" Background="{TemplateBinding Background}" Padding="13,10"
+                            BorderThickness="1" BorderBrush="Transparent">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -54,7 +55,7 @@
 
                             <Grid Grid.Column="2" VerticalAlignment="Center">
                                 <Ellipse x:Name="CheckCircle" Width="20" Height="20"
-                                         Fill="{StaticResource AccentGradientBrush}" Visibility="Collapsed" />
+                                         Fill="{Binding ColorBrush}" Visibility="Collapsed" />
                                 <Path x:Name="Check" Width="10" Height="10" Stretch="Uniform"
                                       Data="M2,5.5 L4.5,8 L9,3"
                                       Stroke="White" StrokeThickness="1.8"
@@ -69,7 +70,7 @@
                         </Trigger>
                         <DataTrigger Binding="{Binding IsActive}" Value="True">
                             <Setter TargetName="Bg" Property="Background" Value="{StaticResource CardActiveBrush}" />
-                            <Setter TargetName="Dot" Property="Fill" Value="{StaticResource AccentBrush}" />
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{Binding ColorBrush}" />
                             <Setter TargetName="CheckCircle" Property="Visibility" Value="Visible" />
                             <Setter TargetName="Check" Property="Visibility" Value="Visible" />
                         </DataTrigger>

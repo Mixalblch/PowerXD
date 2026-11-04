@@ -1,0 +1,45 @@
+name: Windows build and regression checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, 'codex/issue-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Run layout and palette regression checks
+        run: dotnet run --project tests/PowerXD.Checks/PowerXD.Checks.csproj -c Release
+      - name: Build both Windows executables
+        shell: pwsh
+        run: ./build.ps1
+      - name: Save regression screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PowerXD-regression-screenshot
+          path: artifacts/*.png
+          if-no-files-found: ignore
+      - name: Save Windows executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: PowerXD-windows-x64
+          path: |
+            publish/portable/PowerXD.exe
+            publish/self-contained/PowerXD.exe
+          if-no-files-found: error

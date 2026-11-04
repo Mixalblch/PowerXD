@@ -16,6 +16,7 @@
         PreviewKeyDown="Window_PreviewKeyDown"
         Loaded="Window_Loaded">
 
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="20">
         <Border x:Name="Card"
                 CornerRadius="20"
@@ -60,8 +61,9 @@
                             <DataTemplate>
                                 <Button Style="{StaticResource ModeItemStyle}"
                                         Margin="0,0,0,4"
-                                        Content="{Binding Name}"
-                                        Click="Mode_Click" />
+                                        Click="Mode_Click">
+                                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -101,4 +103,5 @@
             </Grid>
         </Border>
     </Grid>
+    </ScrollViewer>
 </Window>

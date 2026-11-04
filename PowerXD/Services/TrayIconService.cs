@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using PowerXD.Models;
 
@@ -36,7 +35,8 @@ namespace PowerXD.Services
             _notifyIcon.Icon = newIcon;
             oldIcon?.Dispose();
 
-            _notifyIcon.Text = scheme == null ? "PowerXD" : $"PowerXD — {scheme.Name}";
+            var tooltip = scheme == null ? "PowerXD" : $"PowerXD — {scheme.Name}";
+            _notifyIcon.Text = tooltip.Length <= 63 ? tooltip : tooltip[..60] + "...";
         }
 
         public void ShowBalloon(string text)
@@ -55,22 +55,23 @@ namespace PowerXD.Services
 
         private static Icon BuildIcon(Color? accent)
         {
-            using var baseIcon = LoadBaseIcon();
-            using var bmp = baseIcon.ToBitmap();
-
-            if (accent.HasValue)
+            // Use the entire tray glyph for the current mode, so its state is
+            // readable at 16px on both light and dark taskbars.
+            using var bmp = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bmp))
             {
-                using var g = Graphics.FromImage(bmp);
+                g.Clear(Color.Transparent);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
+                using var background = new SolidBrush(accent ?? Color.FromArgb(154, 160, 174));
+                g.FillEllipse(background, 1, 1, 30, 30);
 
-                int d = Math.Max(8, bmp.Width / 4);
-                int x = bmp.Width - d - 2;
-                int y = bmp.Height - d - 2;
-
-                using var brush = new SolidBrush(accent.Value);
-                g.FillEllipse(brush, x, y, d, d);
-                using var pen = new Pen(Color.White, Math.Max(1f, d / 8f));
-                g.DrawEllipse(pen, x, y, d, d);
+                using var pen = new Pen(Color.White, 2.5f)
+                {
+                    StartCap = LineCap.Round,
+                    EndCap = LineCap.Round
+                };
+                g.DrawArc(pen, 7, 7, 18, 18, -45, 270);
+                g.DrawLine(pen, 16, 5, 16, 15);
             }
 
             IntPtr hIcon = bmp.GetHicon();
@@ -85,18 +86,6 @@ namespace PowerXD.Services
             }
         }
 
-        private static Icon LoadBaseIcon()
-        {
-            var stream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("PowerXD.Assets.app.ico");
-            if (stream == null) return SystemIcons.Application;
-
-            using (stream)
-            {
-                return new Icon(stream, new Size(64, 64));
-            }
-        }
-
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool DestroyIcon(IntPtr hIcon);
 
@@ -104,7 +93,10 @@ namespace PowerXD.Services
         {
             _notifyIcon.Visible = false;
             _notifyIcon.MouseClick -= OnMouseClick;
-            _notifyIcon.Dispose(); // also disposes the current icon
+            _notifyIcon.Icon = null;
+            _notifyIcon.Dispose();
+            _currentIcon?.Dispose();
+            _currentIcon = null;
         }
     }
 }
