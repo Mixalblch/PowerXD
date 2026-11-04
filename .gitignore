@@ -1,0 +1,21 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.cache
+
+# Publish & distribution artifacts
+publish/
+share/
+*.zip
+
+# OS / IDE
+.vs/
+.vscode/
+Thumbs.db
+Desktop.ini
+
+# Editor temp artifacts
+*.tmp
+*.tmpdir/
